@@ -20,6 +20,7 @@ import {
 import { TourCard } from "@/components/cards/tour-card";
 import { TestimonialCard } from "@/components/cards/testimonial-card";
 import { InquiryForm } from "@/components/forms/inquiry-form";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { StickyMobileCta } from "@/components/layout/sticky-mobile-cta";
 import { getTourBySlug, getRelatedTours, tours } from "@/data/tours";
 import { testimonials } from "@/data/testimonials";
@@ -113,7 +114,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
         <div className="container-gk grid grid-cols-1 gap-12 lg:grid-cols-3">
           <div className="space-y-12 lg:col-span-2">
             {/* Overview */}
-            <div>
+            <Reveal>
               <span className={cn("eyebrow", `!${accentText}`)}>Overview</span>
               <h2 className="mt-3 font-display text-2xl font-medium md:text-3xl">
                 About This Journey
@@ -121,10 +122,10 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
                 {tour.description}
               </p>
-            </div>
+            </Reveal>
 
             {/* Highlights */}
-            <div>
+            <Reveal>
               <h2 className="font-display text-2xl font-medium md:text-3xl">
                 Journey Highlights
               </h2>
@@ -136,10 +137,10 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                   </li>
                 ))}
               </ul>
-            </div>
+            </Reveal>
 
             {/* Itinerary */}
-            <div>
+            <Reveal>
               <h2 className="font-display text-2xl font-medium md:text-3xl">
                 Day-Wise Itinerary
               </h2>
@@ -174,11 +175,11 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                   </AccordionItem>
                 ))}
               </Accordion>
-            </div>
+            </Reveal>
 
             {/* Hotels */}
             {tour.hotels.length > 0 && (
-              <div>
+              <Reveal>
                 <h2 className="font-display text-2xl font-medium md:text-3xl">
                   Where You&apos;ll Stay
                 </h2>
@@ -204,11 +205,11 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                     </div>
                   ))}
                 </div>
-              </div>
+              </Reveal>
             )}
 
             {/* Inclusions / Exclusions */}
-            <div className="grid grid-cols-1 gap-8 sm:grid-cols-2">
+            <Reveal className="grid grid-cols-1 gap-8 sm:grid-cols-2">
               <div>
                 <h3 className="font-display text-xl font-medium">Inclusions</h3>
                 <ul className="mt-4 space-y-2.5">
@@ -231,33 +232,33 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                   ))}
                 </ul>
               </div>
-            </div>
+            </Reveal>
 
             {/* Gallery */}
             {tour.gallery.length > 0 && (
-              <div>
+              <Reveal>
                 <h2 className="font-display text-2xl font-medium md:text-3xl">
                   Gallery
                 </h2>
                 <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {tour.gallery.map((src, i) => (
-                    <div key={src} className="relative aspect-square overflow-hidden rounded-lg">
+                    <div key={src} className="group relative aspect-square overflow-hidden rounded-lg">
                       <Image
                         src={src}
                         alt={`${tour.title} photo ${i + 1}`}
                         fill
                         sizes="(max-width: 768px) 50vw, 25vw"
-                        className="object-cover"
+                        className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
                       />
                     </div>
                   ))}
                 </div>
-              </div>
+              </Reveal>
             )}
 
             {/* Reviews */}
             {reviews.length > 0 && (
-              <div>
+              <Reveal>
                 <h2 className="font-display text-2xl font-medium md:text-3xl">
                   Traveller Reviews
                 </h2>
@@ -266,7 +267,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                     <TestimonialCard key={review.id} testimonial={review} />
                   ))}
                 </div>
-              </div>
+              </Reveal>
             )}
           </div>
 
@@ -306,17 +307,19 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
       {relatedTours.length > 0 && (
         <section className="section-y bg-secondary">
           <div className="container-gk">
-            <div className="max-w-2xl">
+            <Reveal className="max-w-2xl">
               <span className="eyebrow">You May Also Like</span>
               <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
                 Related Journeys
               </h2>
-            </div>
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            </Reveal>
+            <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {relatedTours.map((related) => (
-                <TourCard key={related.slug} tour={related} />
+                <StaggerItem key={related.slug} className="h-full">
+                  <TourCard tour={related} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </div>
         </section>
       )}

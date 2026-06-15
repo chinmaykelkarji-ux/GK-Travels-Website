@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/page-hero";
 import { CTASection } from "@/components/sections/cta-section";
 import { DepartureCard } from "@/components/cards/departure-card";
+import { StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { departures } from "@/data/departures";
 
 export const metadata: Metadata = {
@@ -27,11 +28,13 @@ export default function DeparturesPage() {
 
       <section className="section-y">
         <div className="container-gk">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <StaggerGroup className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {sorted.map((departure) => (
-              <DepartureCard key={departure.id} departure={departure} />
+              <StaggerItem key={departure.id}>
+                <DepartureCard departure={departure} />
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 

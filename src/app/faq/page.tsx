@@ -7,6 +7,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Reveal } from "@/components/motion/reveal";
 import { faqs } from "@/data/faq";
 
 export const metadata: Metadata = {
@@ -31,7 +32,7 @@ export default function FaqPage() {
       <section className="section-y">
         <div className="container-gk mx-auto max-w-3xl">
           {categories.map((category) => (
-            <div key={category} className="mb-10">
+            <Reveal key={category} className="mb-10">
               <h2 className="font-display text-2xl font-medium md:text-3xl">{category}</h2>
               <Accordion className="mt-3">
                 {faqs
@@ -49,7 +50,7 @@ export default function FaqPage() {
                     </AccordionItem>
                   ))}
               </Accordion>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>

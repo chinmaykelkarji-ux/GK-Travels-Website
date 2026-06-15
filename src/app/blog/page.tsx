@@ -4,6 +4,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { CTASection } from "@/components/sections/cta-section";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { blogPosts } from "@/data/blog";
 import { formatDate } from "@/lib/utils";
 
@@ -29,73 +30,76 @@ export default function BlogPage() {
       <section className="section-y">
         <div className="container-gk">
           {/* Featured post */}
-          <Link
-            href={`/blog/${featured.slug}`}
-            className="group grid grid-cols-1 gap-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg md:grid-cols-2"
-          >
-            <div className="relative aspect-[16/10] overflow-hidden md:aspect-auto">
-              <Image
-                src={featured.image}
-                alt={featured.title}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </div>
-            <div className="flex flex-col justify-center p-6 md:p-10">
-              <span className="eyebrow">{featured.category}</span>
-              <h2 className="mt-3 font-display text-2xl font-medium md:text-3xl">
-                {featured.title}
-              </h2>
-              <p className="mt-3 text-sm text-muted-foreground md:text-base">
-                {featured.excerpt}
-              </p>
-              <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
-                <span>{formatDate(featured.date)}</span>
-                <span>·</span>
-                <span>{featured.readTime}</span>
+          <Reveal>
+            <Link
+              href={`/blog/${featured.slug}`}
+              className="group grid grid-cols-1 gap-6 overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow duration-300 hover:shadow-lg md:grid-cols-2"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden md:aspect-auto">
+                <Image
+                  src={featured.image}
+                  alt={featured.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+                />
               </div>
-              <span className="mt-5 inline-flex items-center text-sm font-medium text-primary">
-                Read Article
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </span>
-            </div>
-          </Link>
+              <div className="flex flex-col justify-center p-6 md:p-10">
+                <span className="eyebrow">{featured.category}</span>
+                <h2 className="mt-3 font-display text-2xl font-medium md:text-3xl">
+                  {featured.title}
+                </h2>
+                <p className="mt-3 text-sm text-muted-foreground md:text-base">
+                  {featured.excerpt}
+                </p>
+                <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
+                  <span>{formatDate(featured.date)}</span>
+                  <span>·</span>
+                  <span>{featured.readTime}</span>
+                </div>
+                <span className="mt-5 inline-flex items-center text-sm font-medium text-primary">
+                  Read Article
+                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
+          </Reveal>
 
           {/* Other posts */}
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {rest.map((post) => (
-              <Link
-                key={post.slug}
-                href={`/blog/${post.slug}`}
-                className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
-              >
-                <div className="relative aspect-[16/10] overflow-hidden">
-                  <Image
-                    src={post.image}
-                    alt={post.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
-                <div className="flex flex-1 flex-col p-5">
-                  <span className="eyebrow">{post.category}</span>
-                  <h3 className="mt-2 font-display text-lg font-medium leading-snug">
-                    {post.title}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm text-muted-foreground line-clamp-3">
-                    {post.excerpt}
-                  </p>
-                  <div className="mt-4 flex items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
-                    <span>{formatDate(post.date)}</span>
-                    <span>·</span>
-                    <span>{post.readTime}</span>
+              <StaggerItem key={post.slug} className="h-full">
+                <Link
+                  href={`/blog/${post.slug}`}
+                  className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow duration-300 hover:shadow-lg"
+                >
+                  <div className="relative aspect-[16/10] overflow-hidden">
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+                    />
                   </div>
-                </div>
-              </Link>
+                  <div className="flex flex-1 flex-col p-5">
+                    <span className="eyebrow">{post.category}</span>
+                    <h3 className="mt-2 font-display text-lg font-medium leading-snug">
+                      {post.title}
+                    </h3>
+                    <p className="mt-2 flex-1 text-sm text-muted-foreground line-clamp-3">
+                      {post.excerpt}
+                    </p>
+                    <div className="mt-4 flex items-center gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
+                      <span>{formatDate(post.date)}</span>
+                      <span>·</span>
+                      <span>{post.readTime}</span>
+                    </div>
+                  </div>
+                </Link>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 

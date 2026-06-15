@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PageHero } from "@/components/sections/page-hero";
 import { CTASection } from "@/components/sections/cta-section";
 import { TourCard } from "@/components/cards/tour-card";
+import { StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { tours } from "@/data/tours";
 import { destinations } from "@/data/destinations";
 
@@ -149,11 +150,13 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
           </div>
 
           {results.length > 0 ? (
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <StaggerGroup className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {results.map((tour) => (
-                <TourCard key={tour.slug} tour={tour} />
+                <StaggerItem key={tour.slug} className="h-full">
+                  <TourCard tour={tour} />
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           ) : (
             <div className="mt-16 flex flex-col items-center text-center">
               <h3 className="font-display text-2xl font-medium">No Tours Found</h3>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/page-hero";
 import { CustomTourForm } from "@/components/forms/custom-tour-form";
 import { WhyChooseUs } from "@/components/sections/why-choose-us";
+import { Reveal } from "@/components/motion/reveal";
 
 export const metadata: Metadata = {
   title: "Plan My Trip",
@@ -22,7 +23,7 @@ export default function PlanMyTripPage() {
 
       <section className="section-y">
         <div className="container-gk grid grid-cols-1 gap-12 lg:grid-cols-3">
-          <div className="lg:col-span-1">
+          <Reveal className="lg:col-span-1">
             <span className="eyebrow">How It Works</span>
             <h2 className="mt-3 font-display text-2xl font-medium md:text-3xl">
               Tell Us About Your Trip
@@ -51,11 +52,11 @@ export default function PlanMyTripPage() {
                 Receive a custom itinerary, tailored to you
               </li>
             </ol>
-          </div>
+          </Reveal>
 
-          <div className="lg:col-span-2">
+          <Reveal className="lg:col-span-2" delay={0.1}>
             <CustomTourForm />
-          </div>
+          </Reveal>
         </div>
       </section>
 

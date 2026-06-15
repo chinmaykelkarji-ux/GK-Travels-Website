@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { ContactForm } from "@/components/forms/contact-form";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -47,9 +48,9 @@ export default function ContactPage() {
 
       <section className="section-y">
         <div className="container-gk grid grid-cols-1 gap-12 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-1">
+          <StaggerGroup className="space-y-6 lg:col-span-1">
             {contactDetails.map(({ icon: Icon, title, lines, href }) => (
-              <div key={title} className="flex gap-4 rounded-xl border border-border bg-card p-5">
+              <StaggerItem key={title} className="flex gap-4 rounded-xl border border-border bg-card p-5">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm bg-primary/5 text-primary">
                   <Icon className="h-5 w-5" strokeWidth={1.5} />
                 </div>
@@ -67,11 +68,11 @@ export default function ContactPage() {
                     )
                   )}
                 </div>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
 
-          <div className="lg:col-span-2">
+          <Reveal className="lg:col-span-2" delay={0.1}>
             <div className="rounded-xl border border-border bg-card p-6 md:p-8">
               <h2 className="font-display text-2xl font-medium md:text-3xl">
                 Send Us a Message
@@ -84,14 +85,14 @@ export default function ContactPage() {
                 <ContactForm />
               </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Map */}
       <section className="pb-20 md:pb-28">
         <div className="container-gk">
-          <div className="relative h-[360px] w-full overflow-hidden rounded-xl border border-border">
+          <Reveal className="relative h-[360px] w-full overflow-hidden rounded-xl border border-border">
             <iframe
               title="GK Travel Office Location"
               src="https://www.google.com/maps?q=Lucknow,Uttar%20Pradesh,India&output=embed"
@@ -99,7 +100,7 @@ export default function ContactPage() {
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />
-          </div>
+          </Reveal>
         </div>
       </section>
     </>

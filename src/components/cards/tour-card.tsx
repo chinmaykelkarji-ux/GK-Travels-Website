@@ -1,16 +1,18 @@
-import Link from "next/link";
 import Image from "next/image";
 import { Star, Clock } from "lucide-react";
 import { Tour } from "@/lib/types";
 import { categoryLabels, categoryAccent, formatPrice, cn } from "@/lib/utils";
+import { MotionLink } from "@/components/motion/motion-elements";
 
 export function TourCard({ tour }: { tour: Tour }) {
   const accent = categoryAccent[tour.category];
 
   return (
-    <Link
+    <MotionLink
       href={`/tours/${tour.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
+      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow duration-300 hover:shadow-xl"
+      whileHover={{ y: -6 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
       <div className="relative aspect-[4/5] overflow-hidden">
         <Image
@@ -18,7 +20,7 @@ export function TourCard({ tour }: { tour: Tour }) {
           alt={tour.title}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-500 group-hover:scale-105"
+          className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
         />
         <span
           className={cn(
@@ -70,6 +72,6 @@ export function TourCard({ tour }: { tour: Tour }) {
           </span>
         </div>
       </div>
-    </Link>
+    </MotionLink>
   );
 }

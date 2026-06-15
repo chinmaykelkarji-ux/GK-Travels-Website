@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Menu, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -34,9 +34,24 @@ const internationalDestinations = destinations.filter(
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/90 backdrop-blur-md">
+    <header
+      className={cn(
+        "sticky top-0 z-50 w-full border-b transition-colors duration-300",
+        scrolled
+          ? "border-border/70 bg-background/90 shadow-sm backdrop-blur-md"
+          : "border-transparent bg-background/0"
+      )}
+    >
       <div className="container-gk flex h-18 items-center justify-between gap-4 py-3">
         {/* Logo */}
         <Link href="/" className="flex flex-col leading-none shrink-0">

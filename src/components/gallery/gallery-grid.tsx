@@ -35,7 +35,7 @@ export function GalleryGrid({ images }: { images: GalleryImage[] }) {
               alt={image.alt}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
             />
           </button>
         ))}

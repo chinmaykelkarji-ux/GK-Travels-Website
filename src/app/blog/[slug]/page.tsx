@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { CTASection } from "@/components/sections/cta-section";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { blogPosts, getBlogPostBySlug } from "@/data/blog";
 import { formatDate } from "@/lib/utils";
 
@@ -71,50 +72,51 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
       <section className="section-y">
         <div className="container-gk">
-          <div className="mx-auto max-w-2xl">
+          <Reveal className="mx-auto max-w-2xl">
             {post.content.map((paragraph, i) => (
               <p key={i} className="mb-5 text-sm leading-relaxed text-foreground/85 md:text-base">
                 {paragraph}
               </p>
             ))}
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {related.length > 0 && (
         <section className="section-y bg-secondary">
           <div className="container-gk">
-            <div className="max-w-2xl">
+            <Reveal className="max-w-2xl">
               <span className="eyebrow">More From The Journal</span>
               <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
                 Related Reads
               </h2>
-            </div>
-            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+            </Reveal>
+            <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
               {related.map((p) => (
-                <Link
-                  key={p.slug}
-                  href={`/blog/${p.slug}`}
-                  className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden">
-                    <Image
-                      src={p.image}
-                      alt={p.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="p-5">
-                    <span className="eyebrow">{p.category}</span>
-                    <h3 className="mt-2 font-display text-base font-medium leading-snug">
-                      {p.title}
-                    </h3>
-                  </div>
-                </Link>
+                <StaggerItem key={p.slug} className="h-full">
+                  <Link
+                    href={`/blog/${p.slug}`}
+                    className="group flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card shadow-sm transition-shadow duration-300 hover:shadow-lg"
+                  >
+                    <div className="relative aspect-[16/10] overflow-hidden">
+                      <Image
+                        src={p.image}
+                        alt={p.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-110"
+                      />
+                    </div>
+                    <div className="p-5">
+                      <span className="eyebrow">{p.category}</span>
+                      <h3 className="mt-2 font-display text-base font-medium leading-snug">
+                        {p.title}
+                      </h3>
+                    </div>
+                  </Link>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </div>
         </section>
       )}

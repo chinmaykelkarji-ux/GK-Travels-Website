@@ -3,6 +3,7 @@ import { PageHero } from "@/components/sections/page-hero";
 import { CTASection } from "@/components/sections/cta-section";
 import { GalleryGrid } from "@/components/gallery/gallery-grid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Reveal } from "@/components/motion/reveal";
 import { tours } from "@/data/tours";
 
 export const metadata: Metadata = {
@@ -35,22 +36,24 @@ export default function GalleryPage() {
 
       <section className="section-y">
         <div className="container-gk">
-          <Tabs defaultValue="all">
-            <TabsList variant="line" className="mb-8">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="pilgrimage">Sacred Journeys</TabsTrigger>
-              <TabsTrigger value="escapes">Signature Escapes</TabsTrigger>
-            </TabsList>
-            <TabsContent value="all">
-              <GalleryGrid images={allImages} />
-            </TabsContent>
-            <TabsContent value="pilgrimage">
-              <GalleryGrid images={pilgrimageImages} />
-            </TabsContent>
-            <TabsContent value="escapes">
-              <GalleryGrid images={escapeImages} />
-            </TabsContent>
-          </Tabs>
+          <Reveal>
+            <Tabs defaultValue="all">
+              <TabsList variant="line" className="mb-8">
+                <TabsTrigger value="all">All</TabsTrigger>
+                <TabsTrigger value="pilgrimage">Sacred Journeys</TabsTrigger>
+                <TabsTrigger value="escapes">Signature Escapes</TabsTrigger>
+              </TabsList>
+              <TabsContent value="all">
+                <GalleryGrid images={allImages} />
+              </TabsContent>
+              <TabsContent value="pilgrimage">
+                <GalleryGrid images={pilgrimageImages} />
+              </TabsContent>
+              <TabsContent value="escapes">
+                <GalleryGrid images={escapeImages} />
+              </TabsContent>
+            </Tabs>
+          </Reveal>
         </div>
       </section>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Reveal } from "@/components/motion/reveal";
 
 interface CTASectionProps {
   eyebrow?: string;
@@ -22,7 +23,7 @@ export function CTASection({
 }: CTASectionProps) {
   return (
     <section className="section-y bg-primary text-primary-foreground">
-      <div className="container-gk flex flex-col items-center text-center">
+      <Reveal className="container-gk flex flex-col items-center text-center">
         <span className="eyebrow">{eyebrow}</span>
         <h2 className="mt-3 max-w-2xl font-display text-3xl font-medium md:text-4xl">
           {title}
@@ -47,7 +48,7 @@ export function CTASection({
             </Button>
           )}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

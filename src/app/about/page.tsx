@@ -6,6 +6,7 @@ import { CTASection } from "@/components/sections/cta-section";
 import { WhyChooseUs } from "@/components/sections/why-choose-us";
 import { StatsSection } from "@/components/sections/stats-section";
 import { TestimonialsSection } from "@/components/sections/testimonials-section";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 
 export const metadata: Metadata = {
   title: "About Us",
@@ -54,7 +55,7 @@ export default function AboutPage() {
       {/* Story */}
       <section className="section-y">
         <div className="container-gk grid grid-cols-1 gap-12 lg:grid-cols-2 lg:items-center">
-          <div className="relative aspect-[4/5] overflow-hidden rounded-xl lg:order-2">
+          <Reveal className="relative aspect-[4/5] overflow-hidden rounded-xl lg:order-2">
             <Image
               src="https://picsum.photos/seed/gk-about-story/1000/1250"
               alt="GK Travel team planning a journey"
@@ -62,8 +63,8 @@ export default function AboutPage() {
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
-          </div>
-          <div className="lg:order-1">
+          </Reveal>
+          <Reveal className="lg:order-1" delay={0.1}>
             <span className="eyebrow">Since 1994</span>
             <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
               Three Decades of Curated Journeys
@@ -89,30 +90,30 @@ export default function AboutPage() {
                 planning the trip that matters most.
               </p>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* Values */}
       <section className="section-y bg-secondary">
         <div className="container-gk">
-          <div className="max-w-2xl">
+          <Reveal className="max-w-2xl">
             <span className="eyebrow">What We Stand For</span>
             <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
               Our Values
             </h2>
-          </div>
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          </Reveal>
+          <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {values.map(({ icon: Icon, title, description }) => (
-              <div key={title} className="rounded-xl border border-border bg-card p-6">
+              <StaggerItem key={title} className="rounded-xl border border-border bg-card p-6">
                 <div className="flex h-11 w-11 items-center justify-center rounded-sm bg-primary/5 text-primary">
                   <Icon className="h-5 w-5" strokeWidth={1.5} />
                 </div>
                 <h3 className="mt-4 font-display text-lg font-medium">{title}</h3>
                 <p className="mt-2 text-sm text-muted-foreground">{description}</p>
-              </div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 

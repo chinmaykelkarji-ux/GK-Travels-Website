@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
-import Image from "next/image";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { ParallaxImage } from "@/components/motion/parallax-image";
+import { EASE_PREMIUM, staggerContainer, staggerItem } from "@/components/motion/reveal";
 
 const trustItems = [
   "30+ Years of Experience",
@@ -13,28 +17,35 @@ export function Hero() {
   return (
     <section className="relative">
       <div className="relative h-[88vh] min-h-[600px] w-full overflow-hidden md:h-[92vh]">
-        <Image
+        <ParallaxImage
           src="https://picsum.photos/seed/gk-hero-main/1920/1200"
           alt="A serene Himalayan temple at sunrise alongside a tropical beach escape"
-          fill
           priority
-          sizes="100vw"
-          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/30 to-primary/10" />
 
-        <div className="container-gk relative flex h-full flex-col items-start justify-center text-white">
-          <span className="eyebrow">30+ Years of Curated Journeys</span>
-          <h1 className="mt-4 max-w-2xl font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl">
+        <motion.div
+          className="container-gk relative flex h-full flex-col items-start justify-center text-white"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          <motion.span variants={staggerItem} className="eyebrow">
+            30+ Years of Curated Journeys
+          </motion.span>
+          <motion.h1
+            variants={staggerItem}
+            className="mt-4 max-w-2xl font-display text-4xl font-medium leading-tight sm:text-5xl md:text-6xl"
+          >
             Journeys, Curated for You
-          </h1>
-          <p className="mt-5 max-w-xl text-base text-white/85 md:text-lg">
+          </motion.h1>
+          <motion.p variants={staggerItem} className="mt-5 max-w-xl text-base text-white/85 md:text-lg">
             From sacred yatras across Kashi, Ayodhya and Char Dham to signature
             escapes in Bali, Dubai and Kashmir — every journey is designed,
             managed and looked after, end to end.
-          </p>
+          </motion.p>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          <motion.div variants={staggerItem} className="mt-8 flex flex-wrap gap-3">
             <Button
               asChild
               size="lg"
@@ -58,12 +69,17 @@ export function Hero() {
             >
               <Link href="/international-tours">Explore Signature Escapes</Link>
             </Button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* Trust strip */}
-      <div className="border-b border-border bg-card">
+      <motion.div
+        className="border-b border-border bg-card"
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.5, ease: EASE_PREMIUM }}
+      >
         <div className="container-gk flex flex-wrap items-center justify-center gap-x-10 gap-y-3 py-5 text-center md:justify-between">
           {trustItems.map((item) => (
             <p key={item} className="text-xs font-medium uppercase tracking-wider text-muted-foreground md:text-sm">
@@ -71,7 +87,7 @@ export function Hero() {
             </p>
           ))}
         </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

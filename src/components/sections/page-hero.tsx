@@ -1,6 +1,10 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
+import { motion } from "framer-motion";
+import { ParallaxImage } from "@/components/motion/parallax-image";
+import { staggerContainer, staggerItem } from "@/components/motion/reveal";
 
 interface PageHeroProps {
   eyebrow?: string;
@@ -13,19 +17,17 @@ interface PageHeroProps {
 export function PageHero({ eyebrow, title, description, image, breadcrumb }: PageHeroProps) {
   return (
     <section className="relative h-[42vh] min-h-[320px] w-full overflow-hidden md:h-[48vh]">
-      <Image
-        src={image}
-        alt={title}
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
+      <ParallaxImage src={image} alt={title} priority />
       <div className="absolute inset-0 bg-gradient-to-t from-primary/85 via-primary/40 to-primary/20" />
 
-      <div className="container-gk relative flex h-full flex-col items-start justify-center text-white">
+      <motion.div
+        className="container-gk relative flex h-full flex-col items-start justify-center text-white"
+        initial="hidden"
+        animate="visible"
+        variants={staggerContainer}
+      >
         {breadcrumb && (
-          <div className="mb-3 flex items-center gap-1.5 text-xs text-white/70">
+          <motion.div variants={staggerItem} className="mb-3 flex items-center gap-1.5 text-xs text-white/70">
             <Link href="/" className="hover:text-white">
               Home
             </Link>
@@ -41,16 +43,18 @@ export function PageHero({ eyebrow, title, description, image, breadcrumb }: Pag
                 )}
               </span>
             ))}
-          </div>
+          </motion.div>
         )}
-        {eyebrow && <span className="eyebrow">{eyebrow}</span>}
-        <h1 className="mt-2 max-w-2xl font-display text-3xl font-medium sm:text-4xl md:text-5xl">
+        {eyebrow && <motion.span variants={staggerItem} className="eyebrow">{eyebrow}</motion.span>}
+        <motion.h1 variants={staggerItem} className="mt-2 max-w-2xl font-display text-3xl font-medium sm:text-4xl md:text-5xl">
           {title}
-        </h1>
+        </motion.h1>
         {description && (
-          <p className="mt-3 max-w-xl text-sm text-white/85 md:text-base">{description}</p>
+          <motion.p variants={staggerItem} className="mt-3 max-w-xl text-sm text-white/85 md:text-base">
+            {description}
+          </motion.p>
         )}
-      </div>
+      </motion.div>
     </section>
   );
 }

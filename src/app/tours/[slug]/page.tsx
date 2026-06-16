@@ -58,6 +58,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
   const r = rawTour as Record<string, any>;
   const tour = {
     ...r,
+    category: r.category as string,
     image: r.image ?? `https://picsum.photos/seed/${r.slug}/1200/900`,
     gallery: (r.gallery as string[] | undefined) ?? [],
     description: r.description ?? r.overview ?? "",
@@ -82,7 +83,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
             : h
         )
       : [],
-  };
+  } as Record<string, any>;
 
   const accent = categoryAccent[tour.category];
   const accentClass = accent === "terracotta" ? "bg-terracotta" : "bg-teal";
@@ -175,7 +176,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                 Journey Highlights
               </h2>
               <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {tour.highlights.map((highlight) => (
+                {tour.highlights.map((highlight: string) => (
                   <li key={highlight} className="flex items-start gap-2.5 text-sm text-foreground/85">
                     <Check className={cn("mt-0.5 h-4 w-4 shrink-0", accentText)} />
                     {highlight}
@@ -190,7 +191,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                 Day-Wise Itinerary
               </h2>
               <Accordion className="mt-5" defaultValue={["day-1"]}>
-                {tour.itinerary.map((day) => (
+                {tour.itinerary.map((day: any) => (
                   <AccordionItem key={day.day} value={`day-${day.day}`} className="border-border">
                     <AccordionTrigger className="font-display text-base font-medium">
                       <span>
@@ -229,7 +230,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                   Where You&apos;ll Stay
                 </h2>
                 <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {tour.hotels.map((hotel) => (
+                  {tour.hotels.map((hotel: any) => (
                     <div key={hotel.name} className="flex gap-4 rounded-xl border border-border bg-card p-4">
                       <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-sm">
                         <Image
@@ -258,7 +259,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               <div>
                 <h3 className="font-display text-xl font-medium">Inclusions</h3>
                 <ul className="mt-4 space-y-2.5">
-                  {tour.inclusions.map((item) => (
+                  {tour.inclusions.map((item: string) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/85">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
                       {item}
@@ -269,7 +270,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               <div>
                 <h3 className="font-display text-xl font-medium">Exclusions</h3>
                 <ul className="mt-4 space-y-2.5">
-                  {tour.exclusions.map((item) => (
+                  {tour.exclusions.map((item: string) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/85">
                       <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                       {item}
@@ -286,7 +287,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                   Gallery
                 </h2>
                 <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {tour.gallery.map((src, i) => (
+                  {tour.gallery.map((src: string, i: number) => (
                     <div key={src} className="group relative aspect-square overflow-hidden rounded-lg">
                       <Image
                         src={src}

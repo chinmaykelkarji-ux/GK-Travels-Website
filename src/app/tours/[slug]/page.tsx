@@ -22,7 +22,7 @@ import { TestimonialCard } from "@/components/cards/testimonial-card";
 import { InquiryForm } from "@/components/forms/inquiry-form";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { StickyMobileCta } from "@/components/layout/sticky-mobile-cta";
-import { getTourBySlug, getRelatedTours, tours } from "@/data/tours";
+import { getTourBySlug, getRelatedTours, tours } from "@/data/tours-data";
 import { testimonials } from "@/data/testimonials";
 import { categoryLabels, categoryAccent, formatPrice, cn } from "@/lib/utils";
 
@@ -38,26 +38,65 @@ export async function generateMetadata({
   params,
 }: TourDetailsPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const tour = getTourBySlug(slug);
+  const raw = getTourBySlug(slug);
 
-  if (!tour) return {};
+  if (!raw) return {};
+  const t = raw as Record<string, any>;
 
   return {
-    title: tour.title,
-    description: tour.shortDescription,
+    title: t.title,
+    description: t.shortDescription ?? t.metaDescription ?? t.overview ?? "",
   };
 }
 
 export default async function TourDetailsPage({ params }: TourDetailsPageProps) {
   const { slug } = await params;
-  const tour = getTourBySlug(slug);
+  const rawTour = getTourBySlug(slug);
 
-  if (!tour) notFound();
+  if (!rawTour) notFound();
+
+  const r = rawTour as Record<string, any>;
+  const tour = {
+    ...r,
+    image: r.image ?? `https://picsum.photos/seed/${r.slug}/1200/900`,
+    gallery: (r.gallery as string[] | undefined) ?? [],
+    description: r.description ?? r.overview ?? "",
+    shortDescription: r.shortDescription ?? r.metaDescription ?? r.overview ?? "",
+    durationNights: r.durationNights ?? r.nights,
+    durationDays: r.durationDays ?? r.days,
+    bestTime: r.bestTime ?? r.bestSeason,
+    groupSize: r.groupSize as string | undefined,
+    rating: r.rating as number | undefined,
+    reviewCount: r.reviewCount as number | undefined,
+    price: r.price as number | null,
+    originalPrice: r.originalPrice as number | undefined,
+    hotels: Array.isArray(r.hotels)
+      ? r.hotels.map((h: any, i: number) =>
+          typeof h === "string"
+            ? {
+                name: h.replace(/\s*\([^)]*\)$/, "").split(",")[0].trim(),
+                location: (h.split(",")[1] ?? "").replace(/\s*\([^)]*\)$/, "").trim(),
+                category: (h.match(/\(([^)]+)\)/) ?? [])[1] ?? "",
+                image: `https://picsum.photos/seed/${r.slug}-h${i}/300/200`,
+              }
+            : h
+        )
+      : [],
+  };
 
   const accent = categoryAccent[tour.category];
   const accentClass = accent === "terracotta" ? "bg-terracotta" : "bg-teal";
   const accentText = accent === "terracotta" ? "text-terracotta" : "text-teal";
-  const relatedTours = getRelatedTours(tour);
+  const relatedTours = (getRelatedTours(rawTour) as any[]).map((r) => ({
+    ...r,
+    image: r.image ?? `https://picsum.photos/seed/${r.slug}/1200/900`,
+    durationNights: r.durationNights ?? r.nights,
+    durationDays: r.durationDays ?? r.days,
+    destinationName: r.destinationName ?? r.destination,
+    price: r.price ?? 0,
+    rating: r.rating ?? 0,
+    reviewCount: r.reviewCount ?? 0,
+  }));
   const reviews = testimonials.filter((t) => t.tour === tour.title);
 
   return (
@@ -93,18 +132,24 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               <Clock className="h-4 w-4" />
               {tour.durationNights}N / {tour.durationDays}D
             </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="h-4 w-4" />
-              {tour.groupSize}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <CalendarDays className="h-4 w-4" />
-              Best time: {tour.bestTime}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Star className="h-4 w-4 fill-gold text-gold" />
-              {tour.rating} ({tour.reviewCount} reviews)
-            </span>
+            {tour.groupSize && (
+              <span className="flex items-center gap-1.5">
+                <Users className="h-4 w-4" />
+                {tour.groupSize}
+              </span>
+            )}
+            {tour.bestTime && (
+              <span className="flex items-center gap-1.5">
+                <CalendarDays className="h-4 w-4" />
+                Best time: {tour.bestTime}
+              </span>
+            )}
+            {tour.rating && (
+              <span className="flex items-center gap-1.5">
+                <Star className="h-4 w-4 fill-gold text-gold" />
+                {tour.rating} ({tour.reviewCount} reviews)
+              </span>
+            )}
           </div>
         </div>
       </section>
@@ -280,7 +325,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                 </p>
                 <div className="mt-1 flex items-baseline gap-2">
                   <p className="font-display text-3xl font-semibold text-primary">
-                    {formatPrice(tour.price)}
+                    {tour.price ? formatPrice(tour.price) : "Get a Quote"}
                   </p>
                   {tour.originalPrice && (
                     <p className="text-sm text-muted-foreground line-through">
@@ -316,7 +361,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
             <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {relatedTours.map((related) => (
                 <StaggerItem key={related.slug} className="h-full">
-                  <TourCard tour={related} />
+                  <TourCard tour={related as any} />
                 </StaggerItem>
               ))}
             </StaggerGroup>

@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
-import { destinations } from "@/data/destinations";
+import { getAllDestinations } from "@/lib/tours";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "@/components/icons/social-icons";
 
-const pilgrimage = destinations.filter((d) => d.category === "pilgrimage");
-const escapes = destinations.filter((d) => d.category !== "pilgrimage");
+const allDestinations = getAllDestinations();
+const pilgrimage = allDestinations.filter((d) => d.legacyGroup === "pilgrimage");
+const escapes = allDestinations.filter((d) => d.legacyGroup !== "pilgrimage");
 
 export function Footer() {
   return (
@@ -74,7 +75,7 @@ export function Footer() {
               {d.name}
             </FooterLink>
           ))}
-          <FooterLink href="/pilgrimage-tours">All Pilgrimage Tours</FooterLink>
+          <FooterLink href="/tours/category/pilgrimage-tours">All Pilgrimage Tours</FooterLink>
         </FooterColumn>
 
         <FooterColumn title="Signature Escapes">
@@ -83,7 +84,7 @@ export function Footer() {
               {d.name}
             </FooterLink>
           ))}
-          <FooterLink href="/international-tours">All International Tours</FooterLink>
+          <FooterLink href="/tours/category/international-tours">All International Tours</FooterLink>
         </FooterColumn>
 
         <FooterColumn title="Company">

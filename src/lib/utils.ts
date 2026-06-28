@@ -21,30 +21,19 @@ export function formatDate(date: string) {
   });
 }
 
+export function priceLabel(price: number | null | undefined) {
+  return typeof price === "number" ? formatPrice(price) : "Price on Request";
+}
+
+// Legacy 3-way grouping used for hero/card accent colours.
 export const categoryLabels: Record<string, string> = {
   pilgrimage: "Sacred Journeys",
   domestic: "Signature Escapes",
   international: "Signature Escapes",
-  "Pilgrimage Tours": "Sacred Journeys",
-  "North India": "North India",
-  "South India": "South India",
-  "West India": "West India",
-  "North East India": "North East India",
-  "Middle East": "Middle East",
-  "Asia": "Asia",
-  "Island Getaway": "Island Getaway",
 };
 
 export const categoryAccent: Record<string, string> = {
   pilgrimage: "terracotta",
   domestic: "teal",
   international: "teal",
-  "Pilgrimage Tours": "terracotta",
-  "North India": "teal",
-  "South India": "teal",
-  "West India": "teal",
-  "North East India": "teal",
-  "Middle East": "teal",
-  "Asia": "teal",
-  "Island Getaway": "teal",
 };

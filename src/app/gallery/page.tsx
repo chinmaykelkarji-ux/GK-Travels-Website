@@ -4,16 +4,18 @@ import { CTASection } from "@/components/sections/cta-section";
 import { GalleryGrid } from "@/components/gallery/gallery-grid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Reveal } from "@/components/motion/reveal";
-import { tours } from "@/data/tours";
+import { getAllTours } from "@/lib/tours";
 
 export const metadata: Metadata = {
   title: "Gallery",
   description:
     "A glimpse into the journeys GK Travel has designed — from the ghats of Varanasi to the beaches of Bali and the valleys of Kashmir.",
+  alternates: { canonical: "/gallery" },
 };
 
 const buildImages = (category?: "pilgrimage" | "domestic" | "international") => {
-  const filtered = category ? tours.filter((t) => t.category === category) : tours;
+  const all = getAllTours();
+  const filtered = category ? all.filter((t) => t.category === category) : all;
   return filtered.flatMap((tour) =>
     tour.gallery.map((src) => ({ src, alt: `${tour.title} — ${tour.destinationName}` }))
   );

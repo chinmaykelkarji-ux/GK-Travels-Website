@@ -1,10 +1,10 @@
 import Image from "next/image";
-import { Destination } from "@/lib/types";
+import { DerivedDestination } from "@/lib/tours";
 import { categoryAccent, cn } from "@/lib/utils";
 import { MotionLink } from "@/components/motion/motion-elements";
 
-export function DestinationCard({ destination }: { destination: Destination }) {
-  const accent = categoryAccent[destination.category];
+export function DestinationCard({ destination }: { destination: DerivedDestination }) {
+  const accent = categoryAccent[destination.legacyGroup];
 
   return (
     <MotionLink

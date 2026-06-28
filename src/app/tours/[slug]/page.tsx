@@ -3,13 +3,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  Star,
   Clock,
-  Users,
   CalendarDays,
   Check,
   X,
   ChevronRight,
+  Bus,
+  Utensils,
+  MapPin,
+  ShieldAlert,
+  Backpack,
+  FileText,
 } from "lucide-react";
 import {
   Accordion,
@@ -22,91 +26,116 @@ import { TestimonialCard } from "@/components/cards/testimonial-card";
 import { InquiryForm } from "@/components/forms/inquiry-form";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
 import { StickyMobileCta } from "@/components/layout/sticky-mobile-cta";
-import { getTourBySlug, getRelatedTours, tours } from "@/data/tours-data";
+import { getAllTours, getTourBySlug, getRelatedTours, categoryLabel } from "@/lib/tours";
 import { testimonials } from "@/data/testimonials";
-import { categoryLabels, categoryAccent, formatPrice, cn } from "@/lib/utils";
+import { categoryLabels, categoryAccent, priceLabel, cn } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 
 interface TourDetailsPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export function generateStaticParams() {
-  return tours.map((tour) => ({ slug: tour.slug }));
+  return getAllTours().map((tour) => ({ slug: tour.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: TourDetailsPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: TourDetailsPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const raw = getTourBySlug(slug);
+  const tour = getTourBySlug(slug);
+  if (!tour) return {};
 
-  if (!raw) return {};
-  const t = raw as Record<string, any>;
+  const title = tour.metaTitle || `${tour.title} | GK Travel`;
+  const description = tour.metaDescription || tour.shortDescription;
+  const url = `/tours/${tour.slug}`;
 
   return {
-    title: t.title,
-    description: t.shortDescription ?? t.metaDescription ?? t.overview ?? "",
+    title: tour.metaTitle || tour.title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      images: [{ url: tour.image, width: 1200, height: 900, alt: tour.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [tour.image],
+    },
   };
 }
 
 export default async function TourDetailsPage({ params }: TourDetailsPageProps) {
   const { slug } = await params;
-  const rawTour = getTourBySlug(slug);
+  const tour = getTourBySlug(slug);
 
-  if (!rawTour) notFound();
-
-  const r = rawTour as Record<string, any>;
-  const tour = {
-    ...r,
-    category: r.category as string,
-    image: r.image ?? `https://picsum.photos/seed/${r.slug}/1200/900`,
-    gallery: (r.gallery as string[] | undefined) ?? [],
-    description: r.description ?? r.overview ?? "",
-    shortDescription: r.shortDescription ?? r.metaDescription ?? r.overview ?? "",
-    durationNights: r.durationNights ?? r.nights,
-    durationDays: r.durationDays ?? r.days,
-    bestTime: r.bestTime ?? r.bestSeason,
-    groupSize: r.groupSize as string | undefined,
-    rating: r.rating as number | undefined,
-    reviewCount: r.reviewCount as number | undefined,
-    price: r.price as number | null,
-    originalPrice: r.originalPrice as number | undefined,
-    hotels: Array.isArray(r.hotels)
-      ? r.hotels.map((h: any, i: number) =>
-          typeof h === "string"
-            ? {
-                name: h.replace(/\s*\([^)]*\)$/, "").split(",")[0].trim(),
-                location: (h.split(",")[1] ?? "").replace(/\s*\([^)]*\)$/, "").trim(),
-                category: (h.match(/\(([^)]+)\)/) ?? [])[1] ?? "",
-                image: `https://picsum.photos/seed/${r.slug}-h${i}/300/200`,
-              }
-            : h
-        )
-      : [],
-  } as Record<string, any>;
+  if (!tour) notFound();
 
   const accent = categoryAccent[tour.category];
   const accentClass = accent === "terracotta" ? "bg-terracotta" : "bg-teal";
   const accentText = accent === "terracotta" ? "text-terracotta" : "text-teal";
-  const relatedTours = (getRelatedTours(rawTour) as any[]).map((r) => ({
-    ...r,
-    image: r.image ?? `https://picsum.photos/seed/${r.slug}/1200/900`,
-    durationNights: r.durationNights ?? r.nights,
-    durationDays: r.durationDays ?? r.days,
-    destinationName: r.destinationName ?? r.destination,
-    price: r.price ?? 0,
-    rating: r.rating ?? 0,
-    reviewCount: r.reviewCount ?? 0,
-  }));
+  const relatedTours = getRelatedTours(tour);
   const reviews = testimonials.filter((t) => t.tour === tour.title);
+
+  const firstDay = tour.itinerary[0];
+  const lastDay = tour.itinerary[tour.itinerary.length - 1];
+  const mealsIncluded = tour.inclusions.filter((i) => /breakfast|lunch|dinner|meal/i.test(i));
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TouristTrip",
+    name: tour.title,
+    description: tour.shortDescription,
+    image: [tour.image, ...tour.gallery],
+    touristType: tour.tier,
+    itinerary: tour.itinerary.map((d) => ({
+      "@type": "TouristAttraction",
+      name: `Day ${d.day}: ${d.title}`,
+      description: d.description,
+    })),
+    offers: {
+      "@type": "Offer",
+      priceCurrency: "INR",
+      price: tour.price ?? undefined,
+      availability: "https://schema.org/InStock",
+      url: `${SITE_URL}/tours/${tour.slug}`,
+    },
+    provider: {
+      "@type": "TravelAgency",
+      name: "GK Travel",
+      url: SITE_URL,
+    },
+  };
+
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Tours", item: `${SITE_URL}/tours` },
+      { "@type": "ListItem", position: 3, name: tour.title, item: `${SITE_URL}/tours/${tour.slug}` },
+    ],
+  };
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+      />
+
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[380px] w-full overflow-hidden md:h-[60vh]">
         <Image
           src={tour.image}
-          alt={tour.title}
+          alt={`${tour.title} — ${tour.destinationName}`}
           fill
           priority
           sizes="100vw"
@@ -122,35 +151,32 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
             <ChevronRight className="h-3 w-3" />
             <span className="text-white">{tour.title}</span>
           </div>
-          <span className={cn("inline-block w-fit rounded-sm px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white", accentClass)}>
-            {categoryLabels[tour.category]}
-          </span>
+          <div className="flex flex-wrap gap-2">
+            <span className={cn("inline-block w-fit rounded-sm px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white", accentClass)}>
+              {categoryLabels[tour.category]}
+            </span>
+            {tour.categories.slice(0, 2).map((c) => (
+              <span key={c} className="inline-block w-fit rounded-sm bg-white/15 px-3 py-1 text-xs font-medium text-white">
+                {categoryLabel(c)}
+              </span>
+            ))}
+          </div>
           <h1 className="mt-3 max-w-3xl font-display text-3xl font-medium sm:text-4xl md:text-5xl">
             {tour.title}
           </h1>
           <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-white/85">
             <span className="flex items-center gap-1.5">
+              <MapPin className="h-4 w-4" />
+              {tour.destinationName}
+            </span>
+            <span className="flex items-center gap-1.5">
               <Clock className="h-4 w-4" />
               {tour.durationNights}N / {tour.durationDays}D
             </span>
-            {tour.groupSize && (
-              <span className="flex items-center gap-1.5">
-                <Users className="h-4 w-4" />
-                {tour.groupSize}
-              </span>
-            )}
-            {tour.bestTime && (
-              <span className="flex items-center gap-1.5">
-                <CalendarDays className="h-4 w-4" />
-                Best time: {tour.bestTime}
-              </span>
-            )}
-            {tour.rating && (
-              <span className="flex items-center gap-1.5">
-                <Star className="h-4 w-4 fill-gold text-gold" />
-                {tour.rating} ({tour.reviewCount} reviews)
-              </span>
-            )}
+            <span className="flex items-center gap-1.5">
+              <CalendarDays className="h-4 w-4" />
+              Best time: {tour.bestTime}
+            </span>
           </div>
         </div>
       </section>
@@ -173,10 +199,10 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
             {/* Highlights */}
             <Reveal>
               <h2 className="font-display text-2xl font-medium md:text-3xl">
-                Journey Highlights
+                Tour Highlights
               </h2>
               <ul className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
-                {tour.highlights.map((highlight: string) => (
+                {tour.highlights.map((highlight) => (
                   <li key={highlight} className="flex items-start gap-2.5 text-sm text-foreground/85">
                     <Check className={cn("mt-0.5 h-4 w-4 shrink-0", accentText)} />
                     {highlight}
@@ -191,7 +217,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                 Day-Wise Itinerary
               </h2>
               <Accordion className="mt-5" defaultValue={["day-1"]}>
-                {tour.itinerary.map((day: any) => (
+                {tour.itinerary.map((day) => (
                   <AccordionItem key={day.day} value={`day-${day.day}`} className="border-border">
                     <AccordionTrigger className="font-display text-base font-medium">
                       <span>
@@ -203,63 +229,18 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                       <p className="text-sm leading-relaxed text-muted-foreground">
                         {day.description}
                       </p>
-                      <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
-                        {day.meals && day.meals.length > 0 && (
-                          <span>
-                            <span className="font-medium text-foreground">Meals: </span>
-                            {day.meals.join(", ")}
-                          </span>
-                        )}
-                        {day.stay && (
-                          <span>
-                            <span className="font-medium text-foreground">Stay: </span>
-                            {day.stay}
-                          </span>
-                        )}
-                      </div>
                     </AccordionContent>
                   </AccordionItem>
                 ))}
               </Accordion>
             </Reveal>
 
-            {/* Hotels */}
-            {tour.hotels.length > 0 && (
-              <Reveal>
-                <h2 className="font-display text-2xl font-medium md:text-3xl">
-                  Where You&apos;ll Stay
-                </h2>
-                <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {tour.hotels.map((hotel: any) => (
-                    <div key={hotel.name} className="flex gap-4 rounded-xl border border-border bg-card p-4">
-                      <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-sm">
-                        <Image
-                          src={hotel.image}
-                          alt={hotel.name}
-                          fill
-                          sizes="96px"
-                          className="object-cover"
-                        />
-                      </div>
-                      <div>
-                        <p className="font-display text-base font-medium">{hotel.name}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{hotel.location}</p>
-                        <span className="mt-2 inline-block rounded-sm bg-secondary px-2 py-0.5 text-[11px] font-medium text-foreground/80">
-                          {hotel.category}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Reveal>
-            )}
-
             {/* Inclusions / Exclusions */}
             <Reveal className="grid grid-cols-1 gap-8 sm:grid-cols-2">
               <div>
                 <h3 className="font-display text-xl font-medium">Inclusions</h3>
                 <ul className="mt-4 space-y-2.5">
-                  {tour.inclusions.map((item: string) => (
+                  {tour.inclusions.map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/85">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
                       {item}
@@ -270,7 +251,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               <div>
                 <h3 className="font-display text-xl font-medium">Exclusions</h3>
                 <ul className="mt-4 space-y-2.5">
-                  {tour.exclusions.map((item: string) => (
+                  {tour.exclusions.map((item) => (
                     <li key={item} className="flex items-start gap-2.5 text-sm text-foreground/85">
                       <X className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
                       {item}
@@ -280,14 +261,126 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               </div>
             </Reveal>
 
+            {/* Hotels */}
+            {tour.hotels.length > 0 && (
+              <Reveal>
+                <h2 className="font-display text-2xl font-medium md:text-3xl">
+                  Where You&apos;ll Stay
+                </h2>
+                <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {tour.hotels.map((hotel) => (
+                    <div key={hotel.name} className="flex gap-4 rounded-xl border border-border bg-card p-4">
+                      <div className="relative h-20 w-24 shrink-0 overflow-hidden rounded-sm">
+                        <Image src={hotel.image} alt={hotel.name} fill sizes="96px" className="object-cover" />
+                      </div>
+                      <div>
+                        <p className="font-display text-base font-medium">{hotel.name}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">{hotel.location}</p>
+                        {hotel.category && (
+                          <span className="mt-2 inline-block rounded-sm bg-secondary px-2 py-0.5 text-[11px] font-medium text-foreground/80">
+                            {hotel.category}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Reveal>
+            )}
+
+            {/* Transportation */}
+            <Reveal>
+              <h3 className="flex items-center gap-2 font-display text-xl font-medium">
+                <Bus className={cn("h-5 w-5", accentText)} /> Transportation
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{tour.transport}</p>
+            </Reveal>
+
+            {/* Meals */}
+            <Reveal>
+              <h3 className="flex items-center gap-2 font-display text-xl font-medium">
+                <Utensils className={cn("h-5 w-5", accentText)} /> Meals &amp; Local Cuisine
+              </h3>
+              {mealsIncluded.length > 0 && (
+                <p className="mt-3 text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Included: </span>
+                  {mealsIncluded.join(", ")}
+                </p>
+              )}
+              {tour.food.length > 0 && (
+                <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {tour.food.map((item) => (
+                    <li key={item} className="text-sm text-foreground/85">• {item}</li>
+                  ))}
+                </ul>
+              )}
+            </Reveal>
+
+            {/* Pickup & Drop */}
+            <Reveal>
+              <h3 className="flex items-center gap-2 font-display text-xl font-medium">
+                <MapPin className={cn("h-5 w-5", accentText)} /> Pickup &amp; Drop
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Pickup on arrival as described on Day 1 ({firstDay?.title}) and drop-off for departure on Day{" "}
+                {lastDay?.day} ({lastDay?.title}), as detailed in the itinerary above.
+              </p>
+            </Reveal>
+
+            {/* Things to Carry */}
+            {tour.tips.length > 0 && (
+              <Reveal>
+                <h3 className="flex items-center gap-2 font-display text-xl font-medium">
+                  <Backpack className={cn("h-5 w-5", accentText)} /> Things to Carry &amp; Travel Tips
+                </h3>
+                <ul className="mt-4 space-y-2.5">
+                  {tour.tips.map((tip) => (
+                    <li key={tip} className="flex items-start gap-2.5 text-sm text-foreground/85">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-sage" />
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </Reveal>
+            )}
+
+            {/* Important Notes */}
+            <Reveal>
+              <h3 className="flex items-center gap-2 font-display text-xl font-medium">
+                <ShieldAlert className={cn("h-5 w-5", accentText)} /> Important Notes
+              </h3>
+              <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                <li>• Sightseeing sequence may change based on local conditions, weather, or temple/site timings.</li>
+                <li>• Hotel check-in/check-out is subject to property policy; early check-in is on request.</li>
+                <li>• Itinerary can be customised — speak to our travel specialist for modifications.</li>
+              </ul>
+            </Reveal>
+
+            {/* Cancellation Policy & Terms */}
+            <Reveal>
+              <h3 className="flex items-center gap-2 font-display text-xl font-medium">
+                <FileText className={cn("h-5 w-5", accentText)} /> Cancellation Policy &amp; Terms
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                Cancellation charges depend on how close to departure you cancel, and full terms apply to every
+                booking. Please review our{" "}
+                <Link href="/refund-policy" className={cn("font-medium underline", accentText)}>
+                  cancellation &amp; refund policy
+                </Link>{" "}
+                and{" "}
+                <Link href="/terms" className={cn("font-medium underline", accentText)}>
+                  terms &amp; conditions
+                </Link>{" "}
+                before booking.
+              </p>
+            </Reveal>
+
             {/* Gallery */}
             {tour.gallery.length > 0 && (
               <Reveal>
-                <h2 className="font-display text-2xl font-medium md:text-3xl">
-                  Gallery
-                </h2>
+                <h2 className="font-display text-2xl font-medium md:text-3xl">Gallery</h2>
                 <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  {tour.gallery.map((src: string, i: number) => (
+                  {tour.gallery.map((src, i) => (
                     <div key={src} className="group relative aspect-square overflow-hidden rounded-lg">
                       <Image
                         src={src}
@@ -302,12 +395,29 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
               </Reveal>
             )}
 
+            {/* FAQ */}
+            {tour.faq.length > 0 && (
+              <Reveal>
+                <h2 className="font-display text-2xl font-medium md:text-3xl">
+                  Frequently Asked Questions
+                </h2>
+                <Accordion className="mt-5">
+                  {tour.faq.map((item, i) => (
+                    <AccordionItem key={item.q} value={`faq-${i}`} className="border-border">
+                      <AccordionTrigger className="font-display text-base font-medium">{item.q}</AccordionTrigger>
+                      <AccordionContent>
+                        <p className="text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </Reveal>
+            )}
+
             {/* Reviews */}
             {reviews.length > 0 && (
               <Reveal>
-                <h2 className="font-display text-2xl font-medium md:text-3xl">
-                  Traveller Reviews
-                </h2>
+                <h2 className="font-display text-2xl font-medium md:text-3xl">Traveller Reviews</h2>
                 <div className="mt-5 grid grid-cols-1 gap-6 sm:grid-cols-2">
                   {reviews.map((review) => (
                     <TestimonialCard key={review.id} testimonial={review} />
@@ -321,29 +431,40 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
           <div className="lg:col-span-1">
             <div id="enquire" className="sticky top-24 space-y-4">
               <div className="rounded-xl border border-border bg-card p-5">
-                <p className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Starting from
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Starting from</p>
+                <p className="mt-1 font-display text-3xl font-semibold text-primary">
+                  {priceLabel(tour.price)}
                 </p>
-                <div className="mt-1 flex items-baseline gap-2">
-                  <p className="font-display text-3xl font-semibold text-primary">
-                    {tour.price ? formatPrice(tour.price) : "Get a Quote"}
-                  </p>
-                  {tour.originalPrice && (
-                    <p className="text-sm text-muted-foreground line-through">
-                      {formatPrice(tour.originalPrice)}
-                    </p>
-                  )}
-                </div>
                 <p className="mt-1 text-xs text-muted-foreground">per person, on twin sharing</p>
+                <div className="mt-4 flex flex-col gap-2">
+                  <a
+                    href={`https://wa.me/919876543210?text=${encodeURIComponent(
+                      `Hi! I'm interested in the "${tour.title}" tour. Could you share more details?`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex h-11 items-center justify-center rounded-sm bg-[#25D366] text-sm font-semibold text-white hover:bg-[#1ebc59]"
+                  >
+                    WhatsApp Us
+                  </a>
+                  <a
+                    href="#enquire-form"
+                    className="flex h-11 items-center justify-center rounded-sm bg-gold text-sm font-semibold text-primary hover:bg-gold/90"
+                  >
+                    Book Now
+                  </a>
+                </div>
               </div>
 
-              <InquiryForm
-                source="tour_details"
-                tourSlug={tour.slug}
-                tourName={tour.title}
-                title="Enquire About This Tour"
-                description="Get a customised quote and itinerary from our travel specialists."
-              />
+              <div id="enquire-form">
+                <InquiryForm
+                  source="tour_details"
+                  tourSlug={tour.slug}
+                  tourName={tour.title}
+                  title="Enquire About This Tour"
+                  description="Get a customised quote and itinerary from our travel specialists."
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -355,14 +476,12 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
           <div className="container-gk">
             <Reveal className="max-w-2xl">
               <span className="eyebrow">You May Also Like</span>
-              <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
-                Related Journeys
-              </h2>
+              <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">Related Tours</h2>
             </Reveal>
             <StaggerGroup className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {relatedTours.map((related) => (
                 <StaggerItem key={related.slug} className="h-full">
-                  <TourCard tour={related as any} />
+                  <TourCard tour={related} />
                 </StaggerItem>
               ))}
             </StaggerGroup>
@@ -371,7 +490,6 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
       )}
 
       <StickyMobileCta tourTitle={tour.title} enquireHref="#enquire" />
-      {/* Spacer so the sticky mobile CTA doesn't overlap the footer on small screens */}
       <div className="h-16 md:hidden" />
     </>
   );

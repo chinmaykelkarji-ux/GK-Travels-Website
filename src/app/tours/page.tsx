@@ -4,63 +4,94 @@ import { PageHero } from "@/components/sections/page-hero";
 import { CTASection } from "@/components/sections/cta-section";
 import { TourCard } from "@/components/cards/tour-card";
 import { StaggerGroup, StaggerItem } from "@/components/motion/reveal";
-import { tours } from "@/data/tours";
-import { destinations } from "@/data/destinations";
+import {
+  getAllDestinations,
+  getAllCountries,
+  filterTours,
+  sortTours,
+  TOUR_CATEGORIES,
+} from "@/lib/tours";
 
 export const metadata: Metadata = {
   title: "All Tours",
   description:
-    "Browse every GK Travel package — Sacred Journeys across Kashi, Ayodhya and Char Dham, and Signature Escapes across India and the world.",
+    "Browse all 80 GK Travel packages — pilgrimage, domestic and international tours across 20 destinations. Filter by destination, category, duration and more.",
+  alternates: { canonical: "/tours" },
 };
 
-const categoryOptions = [
-  { value: "", label: "All Journeys" },
-  { value: "pilgrimage", label: "Sacred Journeys (Pilgrimage)" },
-  { value: "domestic", label: "Signature Escapes (Domestic)" },
-  { value: "international", label: "Signature Escapes (International)" },
+const sortOptions = [
+  { value: "recommended", label: "Recommended" },
+  { value: "newest", label: "Newest" },
+  { value: "duration-asc", label: "Duration: Short to Long" },
+  { value: "duration-desc", label: "Duration: Long to Short" },
+  { value: "name-asc", label: "Name: A to Z" },
 ];
 
-const sortOptions = [
-  { value: "", label: "Recommended" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
-  { value: "rating", label: "Highest Rated" },
-];
+const PAGE_SIZE = 12;
 
 interface ToursPageProps {
   searchParams: Promise<{
     destination?: string;
+    country?: string;
     category?: string;
+    tier?: string;
+    season?: string;
+    q?: string;
     sort?: string;
+    page?: string;
   }>;
 }
 
 export default async function ToursPage({ searchParams }: ToursPageProps) {
-  const { destination = "", category = "", sort = "" } = await searchParams;
+  const {
+    destination = "",
+    country = "",
+    category = "",
+    tier = "",
+    season = "",
+    q = "",
+    sort = "recommended",
+    page = "1",
+  } = await searchParams;
 
-  let results = [...tours];
+  const destinations = getAllDestinations();
+  const countries = getAllCountries();
+  const currentPage = Math.max(1, parseInt(page, 10) || 1);
 
-  if (destination) {
-    results = results.filter((t) => t.destinationSlug === destination);
-  }
-  if (category) {
-    results = results.filter((t) => t.category === category);
-  }
+  const filtered = filterTours({
+    destination: destination || undefined,
+    country: country || undefined,
+    category: category || undefined,
+    tier: tier || undefined,
+    season: season || undefined,
+    query: q || undefined,
+  });
+  const results = sortTours(filtered, sort);
 
-  if (sort === "price-asc") {
-    results.sort((a, b) => a.price - b.price);
-  } else if (sort === "price-desc") {
-    results.sort((a, b) => b.price - a.price);
-  } else if (sort === "rating") {
-    results.sort((a, b) => b.rating - a.rating);
-  }
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const pageResults = results.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+  const hasFilters = Boolean(destination || country || category || tier || season || q || sort !== "recommended");
+
+  const buildPageHref = (p: number) => {
+    const params = new URLSearchParams();
+    if (destination) params.set("destination", destination);
+    if (country) params.set("country", country);
+    if (category) params.set("category", category);
+    if (tier) params.set("tier", tier);
+    if (season) params.set("season", season);
+    if (q) params.set("q", q);
+    if (sort) params.set("sort", sort);
+    params.set("page", String(p));
+    return `/tours?${params.toString()}`;
+  };
 
   return (
     <>
       <PageHero
         eyebrow="All Packages"
         title="Explore Our Tours"
-        description="Filter by destination or journey type to find the package that fits you best."
+        description="Search and filter all 80 GK Travel packages to find the journey that fits you best."
         image="https://picsum.photos/seed/gk-tours-hero/1920/1080"
         breadcrumb={[{ label: "Tours" }]}
       />
@@ -71,9 +102,23 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
           <form
             action="/tours"
             method="GET"
-            className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm md:flex-row md:items-end md:gap-4"
+            className="grid grid-cols-1 gap-3 rounded-xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 md:grid-cols-4"
           >
-            <div className="flex-1 space-y-1.5">
+            <div className="space-y-1.5 md:col-span-4">
+              <label htmlFor="q" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Search by Tour Name
+              </label>
+              <input
+                id="q"
+                name="q"
+                type="text"
+                defaultValue={q}
+                placeholder="e.g. Kashmir, Bali, Char Dham..."
+                className="h-11 w-full rounded-sm border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <label htmlFor="destination" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Destination
               </label>
@@ -92,9 +137,28 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
               </select>
             </div>
 
-            <div className="flex-1 space-y-1.5">
+            <div className="space-y-1.5">
+              <label htmlFor="country" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Country
+              </label>
+              <select
+                id="country"
+                name="country"
+                defaultValue={country}
+                className="h-11 w-full rounded-sm border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">All Countries</option>
+                {countries.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
               <label htmlFor="category" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Journey Type
+                Category
               </label>
               <select
                 id="category"
@@ -102,15 +166,46 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
                 defaultValue={category}
                 className="h-11 w-full rounded-sm border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
               >
-                {categoryOptions.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
+                <option value="">All Categories</option>
+                {TOUR_CATEGORIES.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.label}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="flex-1 space-y-1.5">
+            <div className="space-y-1.5">
+              <label htmlFor="tier" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Tour Type
+              </label>
+              <select
+                id="tier"
+                name="tier"
+                defaultValue={tier}
+                className="h-11 w-full rounded-sm border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="">Budget &amp; Premium</option>
+                <option value="Budget">Budget</option>
+                <option value="Premium">Premium</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="season" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Season
+              </label>
+              <input
+                id="season"
+                name="season"
+                type="text"
+                defaultValue={season}
+                placeholder="e.g. October"
+                className="h-11 w-full rounded-sm border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+
+            <div className="space-y-1.5">
               <label htmlFor="sort" className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
                 Sort By
               </label>
@@ -128,35 +223,64 @@ export default async function ToursPage({ searchParams }: ToursPageProps) {
               </select>
             </div>
 
-            <button
-              type="submit"
-              className="h-11 rounded-sm bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-            >
-              Apply Filters
-            </button>
+            <div className="flex items-end md:col-span-4">
+              <button
+                type="submit"
+                className="h-11 w-full rounded-sm bg-primary px-8 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
+              >
+                Apply Filters
+              </button>
+            </div>
           </form>
 
           {/* Results */}
           <div className="mt-6 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Showing <span className="font-medium text-foreground">{results.length}</span>{" "}
+              Showing <span className="font-medium text-foreground">{pageResults.length}</span> of{" "}
+              <span className="font-medium text-foreground">{results.length}</span>{" "}
               {results.length === 1 ? "tour" : "tours"}
             </p>
-            {(destination || category || sort) && (
+            {hasFilters && (
               <Link href="/tours" className="text-sm font-medium text-primary hover:underline">
                 Clear Filters
               </Link>
             )}
           </div>
 
-          {results.length > 0 ? (
-            <StaggerGroup className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {results.map((tour) => (
-                <StaggerItem key={tour.slug} className="h-full">
-                  <TourCard tour={tour} />
-                </StaggerItem>
-              ))}
-            </StaggerGroup>
+          {pageResults.length > 0 ? (
+            <>
+              <StaggerGroup className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {pageResults.map((tour) => (
+                  <StaggerItem key={tour.slug} className="h-full">
+                    <TourCard tour={tour} />
+                  </StaggerItem>
+                ))}
+              </StaggerGroup>
+
+              {totalPages > 1 && (
+                <div className="mt-10 flex items-center justify-center gap-2">
+                  {currentPage > 1 && (
+                    <Link
+                      href={buildPageHref(currentPage - 1)}
+                      className="rounded-sm border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
+                    >
+                      Previous
+                    </Link>
+                  )}
+                  <span className="px-3 text-sm text-muted-foreground">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  {currentPage < totalPages && (
+                    <Link
+                      href={buildPageHref(currentPage + 1)}
+                      className="rounded-sm border border-border px-4 py-2 text-sm font-medium hover:bg-secondary"
+                    >
+                      Next
+                    </Link>
+                  )}
+                </div>
+              )}
+            </>
           ) : (
             <div className="mt-16 flex flex-col items-center text-center">
               <h3 className="font-display text-2xl font-medium">No Tours Found</h3>

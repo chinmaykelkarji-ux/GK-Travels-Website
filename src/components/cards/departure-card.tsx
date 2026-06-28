@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Users } from "lucide-react";
 import { Departure } from "@/lib/types";
 import { getDepartureTour } from "@/data/departures";
-import { formatDate, formatPrice, cn } from "@/lib/utils";
+import { formatDate, priceLabel, cn } from "@/lib/utils";
 
 const statusStyles: Record<Departure["status"], { label: string; className: string }> = {
   open: { label: "Open for Booking", className: "text-sage" },
@@ -41,7 +41,7 @@ export function DepartureCard({ departure }: { departure: Departure }) {
 
       <div className="flex items-center justify-between gap-4 sm:flex-col sm:items-end sm:gap-1">
         <p className="font-display text-lg font-semibold text-primary">
-          {formatPrice(tour.price)}
+          {priceLabel(tour.price)}
         </p>
         <p className={cn("flex items-center gap-1 text-xs font-medium", status.className)}>
           <Users className="h-3.5 w-3.5" />

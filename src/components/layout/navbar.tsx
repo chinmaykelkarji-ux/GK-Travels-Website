@@ -11,7 +11,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { destinations } from "@/data/destinations";
+import { getAllDestinations, TOUR_CATEGORIES } from "@/lib/tours";
 import { cn } from "@/lib/utils";
 
 const PHONE_DISPLAY = "+91 98765 43210";
@@ -25,12 +25,9 @@ const navLinks = [
   { label: "Contact", href: "/contact" },
 ];
 
-const pilgrimageDestinations = destinations.filter(
-  (d) => d.category === "pilgrimage"
-);
-const internationalDestinations = destinations.filter(
-  (d) => d.category === "international"
-);
+const allDestinations = getAllDestinations();
+const pilgrimageDestinations = allDestinations.filter((d) => d.legacyGroup === "pilgrimage");
+const internationalDestinations = allDestinations.filter((d) => d.legacyGroup === "international");
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -66,6 +63,7 @@ export function Navbar() {
         {/* Desktop nav */}
         <nav className="hidden lg:flex items-center gap-7">
           <DestinationsMenu />
+          <CategoriesMenu />
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -118,11 +116,17 @@ export function Navbar() {
                 <MobileLink href="/destinations" onClick={() => setOpen(false)}>
                   Destinations
                 </MobileLink>
-                <MobileLink href="/pilgrimage-tours" onClick={() => setOpen(false)}>
+                <MobileLink href="/tours/category/pilgrimage-tours" onClick={() => setOpen(false)}>
                   Pilgrimage Tours
                 </MobileLink>
-                <MobileLink href="/international-tours" onClick={() => setOpen(false)}>
+                <MobileLink href="/tours/category/international-tours" onClick={() => setOpen(false)}>
                   International Tours
+                </MobileLink>
+                <MobileLink href="/tours/category/honeymoon-packages" onClick={() => setOpen(false)}>
+                  Honeymoon Packages
+                </MobileLink>
+                <MobileLink href="/tours/category/family-holidays" onClick={() => setOpen(false)}>
+                  Family Holidays
                 </MobileLink>
                 {navLinks.map((link) => (
                   <MobileLink
@@ -244,6 +248,44 @@ function DestinationsMenu() {
                 Browse All Destinations →
               </Link>
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategoriesMenu() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        className={cn(
+          "flex items-center gap-1 text-sm font-medium text-foreground/80 hover:text-primary transition-colors",
+          open && "text-primary"
+        )}
+      >
+        Categories
+        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", open && "rotate-180")} />
+      </button>
+
+      {open && (
+        <div className="absolute left-1/2 top-full z-50 w-[420px] -translate-x-1/2 pt-3">
+          <div className="grid grid-cols-2 gap-2 rounded-sm border border-border bg-card p-6 shadow-xl">
+            {TOUR_CATEGORIES.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/tours/category/${c.slug}`}
+                className="text-sm text-foreground/80 hover:text-primary"
+              >
+                {c.label}
+              </Link>
+            ))}
           </div>
         </div>
       )}

@@ -1,8 +1,9 @@
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { destinations } from "@/data/destinations";
+import { getAllDestinations, TOUR_CATEGORIES } from "@/lib/tours";
 
 export function TourSearch() {
+  const destinations = getAllDestinations();
   return (
     <section className="relative z-10">
       <div className="container-gk -mt-8 md:-mt-12">
@@ -41,9 +42,11 @@ export function TourSearch() {
               className="h-11 w-full rounded-sm border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">All Journeys</option>
-              <option value="pilgrimage">Sacred Journeys (Pilgrimage)</option>
-              <option value="domestic">Signature Escapes (Domestic)</option>
-              <option value="international">Signature Escapes (International)</option>
+              {TOUR_CATEGORIES.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.label}
+                </option>
+              ))}
             </select>
           </div>
 

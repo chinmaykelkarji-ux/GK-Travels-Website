@@ -13,15 +13,16 @@ import { DepartureCard } from "@/components/cards/departure-card";
 import { GalleryGrid } from "@/components/gallery/gallery-grid";
 import { InquiryForm } from "@/components/forms/inquiry-form";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
-import { destinations } from "@/data/destinations";
-import { getFeaturedTours, tours } from "@/data/tours";
+import { getAllDestinations, getFeaturedTours, getAllTours } from "@/lib/tours";
 import { departures } from "@/data/departures";
 
 export default function Home() {
-  const featuredDestinations = destinations.filter((d) => d.featured).slice(0, 8);
-  const featuredTours = getFeaturedTours().slice(0, 6);
+  const featuredDestinations = getAllDestinations()
+    .filter((d) => d.featured)
+    .slice(0, 8);
+  const featuredTours = getFeaturedTours(6);
   const upcomingDepartures = departures.slice(0, 4);
-  const galleryImages = tours
+  const galleryImages = getAllTours()
     .slice(0, 8)
     .map((t) => ({ src: t.gallery[0], alt: t.title }));
 

@@ -1,11 +1,13 @@
 import Image from "next/image";
 import { Star, Clock } from "lucide-react";
 import { Tour } from "@/lib/types";
-import { categoryLabels, categoryAccent, formatPrice, cn } from "@/lib/utils";
+import { categoryLabels, categoryAccent, priceLabel, formatPrice, cn } from "@/lib/utils";
+import { categoryLabel } from "@/lib/tours";
 import { MotionLink } from "@/components/motion/motion-elements";
 
 export function TourCard({ tour }: { tour: Tour }) {
   const accent = categoryAccent[tour.category];
+  const badgeLabel = tour.categories?.[0] ? categoryLabel(tour.categories[0]) : categoryLabels[tour.category];
 
   return (
     <MotionLink
@@ -28,7 +30,7 @@ export function TourCard({ tour }: { tour: Tour }) {
             accent === "terracotta" ? "bg-terracotta" : "bg-teal"
           )}
         >
-          {categoryLabels[tour.category]}
+          {badgeLabel}
         </span>
         {tour.originalPrice && (
           <span className="absolute right-3 top-3 rounded-sm bg-gold px-2.5 py-1 text-[11px] font-semibold text-primary">
@@ -45,11 +47,13 @@ export function TourCard({ tour }: { tour: Tour }) {
         <h3 className="mt-1.5 font-display text-lg font-medium leading-snug text-foreground">
           {tour.title}
         </h3>
-        <div className="mt-2 flex items-center gap-1 text-sm">
-          <Star className="h-3.5 w-3.5 fill-gold text-gold" />
-          <span className="font-medium">{tour.rating}</span>
-          <span className="text-muted-foreground">({tour.reviewCount} reviews)</span>
-        </div>
+        {typeof tour.rating === "number" && (
+          <div className="mt-2 flex items-center gap-1 text-sm">
+            <Star className="h-3.5 w-3.5 fill-gold text-gold" />
+            <span className="font-medium">{tour.rating}</span>
+            <span className="text-muted-foreground">({tour.reviewCount} reviews)</span>
+          </div>
+        )}
 
         <div className="mt-4 flex items-end justify-between border-t border-border pt-3">
           <div>
@@ -58,7 +62,7 @@ export function TourCard({ tour }: { tour: Tour }) {
             </p>
             <div className="flex items-baseline gap-2">
               <p className="font-display text-xl font-semibold text-primary">
-                {formatPrice(tour.price)}
+                {priceLabel(tour.price)}
               </p>
               {tour.originalPrice && (
                 <p className="text-xs text-muted-foreground line-through">

@@ -3,24 +3,27 @@ import { PageHero } from "@/components/sections/page-hero";
 import { CTASection } from "@/components/sections/cta-section";
 import { DestinationCard } from "@/components/cards/destination-card";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
-import { destinations } from "@/data/destinations";
+import { getAllDestinations } from "@/lib/tours";
 
 export const metadata: Metadata = {
   title: "Destinations",
   description:
-    "Explore every destination curated by GK Travel — from the sacred ghats of Kashi and Ayodhya to the shores of Bali, Dubai and beyond.",
+    "Explore every destination curated by GK Travel — from the sacred ghats of Kashi and Ayodhya to the shores of Bali, Maldives and beyond.",
+  alternates: { canonical: "/destinations" },
 };
 
 export default function DestinationsPage() {
-  const pilgrimage = destinations.filter((d) => d.category === "pilgrimage");
-  const escapes = destinations.filter((d) => d.category !== "pilgrimage");
+  const destinations = getAllDestinations();
+  const pilgrimage = destinations.filter((d) => d.legacyGroup === "pilgrimage");
+  const domestic = destinations.filter((d) => d.legacyGroup === "domestic");
+  const international = destinations.filter((d) => d.legacyGroup === "international");
 
   return (
     <>
       <PageHero
         eyebrow="Explore"
         title="Our Destinations"
-        description="Every journey begins with a place that calls to you. Explore the destinations we know best — and love most."
+        description="Every journey begins with a place that calls to you. Explore the 20 destinations we know best."
         image="https://picsum.photos/seed/gk-destinations-hero/1920/1080"
         breadcrumb={[{ label: "Destinations" }]}
       />
@@ -33,8 +36,7 @@ export default function DestinationsPage() {
               Pilgrimage Destinations
             </h2>
             <p className="mt-3 text-sm text-muted-foreground md:text-base">
-              Timeless places of devotion, designed for comfort and ease of
-              travel.
+              Timeless places of devotion, designed for comfort and ease of travel.
             </p>
           </Reveal>
           <StaggerGroup className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3">
@@ -50,17 +52,31 @@ export default function DestinationsPage() {
       <section className="section-y bg-secondary">
         <div className="container-gk">
           <Reveal className="max-w-2xl">
-            <span className="eyebrow !text-teal">Signature Escapes</span>
+            <span className="eyebrow !text-teal">Across India</span>
             <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
-              Domestic &amp; International Destinations
+              Domestic Destinations
             </h2>
-            <p className="mt-3 text-sm text-muted-foreground md:text-base">
-              Handpicked leisure destinations across India and around the
-              world.
-            </p>
           </Reveal>
           <StaggerGroup className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
-            {escapes.map((destination) => (
+            {domestic.map((destination) => (
+              <StaggerItem key={destination.slug}>
+                <DestinationCard destination={destination} />
+              </StaggerItem>
+            ))}
+          </StaggerGroup>
+        </div>
+      </section>
+
+      <section className="section-y">
+        <div className="container-gk">
+          <Reveal className="max-w-2xl">
+            <span className="eyebrow !text-teal">Beyond India</span>
+            <h2 className="mt-3 font-display text-3xl font-medium md:text-4xl">
+              International Destinations
+            </h2>
+          </Reveal>
+          <StaggerGroup className="mt-10 grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {international.map((destination) => (
               <StaggerItem key={destination.slug}>
                 <DestinationCard destination={destination} />
               </StaggerItem>

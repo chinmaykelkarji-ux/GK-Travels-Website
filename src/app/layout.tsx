@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { WhatsAppButton } from "@/components/layout/whatsapp-button";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 const fraunces = Fraunces({
   variable: "--font-display",
@@ -20,6 +21,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "GK Travel | Journeys, Curated",
     template: "%s | GK Travel",

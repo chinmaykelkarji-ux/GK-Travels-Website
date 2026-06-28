@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/page-hero";
+import { PHONE_DISPLAY, EMAIL, MAILTO_BASE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -74,10 +75,10 @@ export default function PrivacyPolicyPage() {
             <p className="mt-3">
               If you have any questions about this Privacy Policy or how your
               information is handled, please contact us at{" "}
-              <a href="mailto:hello@gktravel.com" className="text-primary underline-offset-4 hover:underline">
-                hello@gktravel.com
+              <a href={MAILTO_BASE} className="text-primary underline-offset-4 hover:underline">
+                {EMAIL}
               </a>{" "}
-              or +91 98765 43210.
+              or {PHONE_DISPLAY}.
             </p>
           </div>
         </div>

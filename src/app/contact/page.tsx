@@ -3,25 +3,26 @@ import { Mail, MapPin, Phone, Clock } from "lucide-react";
 import { PageHero } from "@/components/sections/page-hero";
 import { ContactForm } from "@/components/forms/contact-form";
 import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/reveal";
+import { PHONE_DISPLAY, TEL_HREF, EMAIL, MAILTO_BASE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Contact Us",
   description:
-    "Get in touch with GK Travel — call, WhatsApp or send us a message and our travel specialists will get back to you shortly.",
+    "Get in touch with GK Travels — call, WhatsApp or send us a message and our travel specialists will get back to you shortly.",
 };
 
 const contactDetails = [
   {
     icon: Phone,
     title: "Call Us",
-    lines: ["+91 98765 43210", "Mon – Sat, 9:30 AM – 7:00 PM"],
-    href: "tel:+919876543210",
+    lines: [PHONE_DISPLAY, "Mon – Sat, 9:30 AM – 7:00 PM"],
+    href: TEL_HREF,
   },
   {
     icon: Mail,
     title: "Email Us",
-    lines: ["hello@gktravel.com", "We reply within 24 hours"],
-    href: "mailto:hello@gktravel.com",
+    lines: [EMAIL, "We reply within 24 hours"],
+    href: MAILTO_BASE,
   },
   {
     icon: MapPin,

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { customTourSchema, type CustomTourInput } from "@/lib/validations";
+import { PHONE_DISPLAY } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
 const steps = [
@@ -53,6 +54,7 @@ const budgets = [
 export function CustomTourForm() {
   const [step, setStep] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   const {
     register,
@@ -66,12 +68,21 @@ export function CustomTourForm() {
   });
 
   const onSubmit = async (data: CustomTourInput) => {
-    const res = await fetch("/api/plan-my-trip", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) setSubmitted(true);
+    setSubmitError(false);
+    try {
+      const res = await fetch("/api/plan-my-trip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        setSubmitError(true);
+      }
+    } catch {
+      setSubmitError(true);
+    }
   };
 
   const next = async () => {
@@ -286,7 +297,7 @@ export function CustomTourForm() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="phone">Phone Number *</Label>
-                <Input id="phone" type="tel" placeholder="+91 98765 43210" {...register("phone")} />
+                <Input id="phone" type="tel" placeholder={PHONE_DISPLAY} {...register("phone")} />
                 {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
               </div>
             </div>
@@ -296,6 +307,13 @@ export function CustomTourForm() {
               {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
             </div>
           </div>
+        )}
+
+        {submitError && (
+          <p className="mt-4 flex items-center gap-2 rounded-sm bg-destructive/10 px-3 py-2 text-xs text-destructive">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            Something went wrong submitting your request. Please try again, or reach us directly via call or WhatsApp.
+          </p>
         )}
 
         <div className="mt-8 flex items-center justify-between">

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { contactSchema, type ContactInput } from "@/lib/validations";
+import { PHONE_DISPLAY } from "@/lib/site";
 
 const subjects = [
   { value: "general", label: "General Enquiry" },
@@ -26,6 +27,7 @@ const subjects = [
 
 export function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
 
   const {
     register,
@@ -36,14 +38,21 @@ export function ContactForm() {
   } = useForm<ContactInput>({ resolver: zodResolver(contactSchema) });
 
   const onSubmit = async (data: ContactInput) => {
-    const res = await fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (res.ok) {
-      setSubmitted(true);
-      reset();
+    setSubmitError(false);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (res.ok) {
+        setSubmitted(true);
+        reset();
+      } else {
+        setSubmitError(true);
+      }
+    } catch {
+      setSubmitError(true);
     }
   };
 
@@ -72,7 +81,7 @@ export function ContactForm() {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="phone">Phone Number *</Label>
-          <Input id="phone" type="tel" placeholder="+91 98765 43210" {...register("phone")} />
+          <Input id="phone" type="tel" placeholder={PHONE_DISPLAY} {...register("phone")} />
           {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
         </div>
       </div>
@@ -106,11 +115,34 @@ export function ContactForm() {
         {errors.subject && <p className="text-xs text-destructive">{errors.subject.message}</p>}
       </div>
 
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor="destination">Destination</Label>
+          <Input id="destination" placeholder="e.g. Kashmir, Bali..." {...register("destination")} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="travelers">Number of Travellers</Label>
+          <Input id="travelers" placeholder="e.g. 2 Adults, 1 Child" {...register("travelers")} />
+        </div>
+      </div>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="travelDate">Preferred Travel Date</Label>
+        <Input id="travelDate" type="date" {...register("travelDate")} />
+      </div>
+
       <div className="space-y-1.5">
         <Label htmlFor="message">Message *</Label>
         <Textarea id="message" rows={4} placeholder="How can we help?" {...register("message")} />
         {errors.message && <p className="text-xs text-destructive">{errors.message.message}</p>}
       </div>
+
+      {submitError && (
+        <p className="flex items-center gap-2 rounded-sm bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          Something went wrong while sending your message. Please try again, or reach us directly via call or WhatsApp.
+        </p>
+      )}
 
       <Button
         type="submit"

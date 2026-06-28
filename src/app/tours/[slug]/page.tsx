@@ -29,7 +29,7 @@ import { StickyMobileCta } from "@/components/layout/sticky-mobile-cta";
 import { getAllTours, getTourBySlug, getRelatedTours, categoryLabel } from "@/lib/tours";
 import { testimonials } from "@/data/testimonials";
 import { categoryLabels, categoryAccent, priceLabel, cn } from "@/lib/utils";
-import { SITE_URL } from "@/lib/site";
+import { SITE_URL, TEL_HREF, buildWhatsAppUrl, buildMailtoUrl } from "@/lib/site";
 
 interface TourDetailsPageProps {
   params: Promise<{ slug: string }>;
@@ -438,9 +438,7 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                 <p className="mt-1 text-xs text-muted-foreground">per person, on twin sharing</p>
                 <div className="mt-4 flex flex-col gap-2">
                   <a
-                    href={`https://wa.me/919876543210?text=${encodeURIComponent(
-                      `Hi! I'm interested in the "${tour.title}" tour. Could you share more details?`
-                    )}`}
+                    href={buildWhatsAppUrl(tour.title)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex h-11 items-center justify-center rounded-sm bg-[#25D366] text-sm font-semibold text-white hover:bg-[#1ebc59]"
@@ -452,6 +450,18 @@ export default async function TourDetailsPage({ params }: TourDetailsPageProps) 
                     className="flex h-11 items-center justify-center rounded-sm bg-gold text-sm font-semibold text-primary hover:bg-gold/90"
                   >
                     Book Now
+                  </a>
+                  <a
+                    href={buildMailtoUrl({ tourName: tour.title })}
+                    className="flex h-11 items-center justify-center rounded-sm border border-border text-sm font-semibold text-foreground hover:bg-secondary"
+                  >
+                    Email Us
+                  </a>
+                  <a
+                    href={TEL_HREF}
+                    className="flex h-11 items-center justify-center rounded-sm border border-border text-sm font-semibold text-foreground hover:bg-secondary"
+                  >
+                    Call Now
                   </a>
                 </div>
               </div>

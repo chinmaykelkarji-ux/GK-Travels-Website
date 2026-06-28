@@ -12,10 +12,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { getAllDestinations, TOUR_CATEGORIES } from "@/lib/tours";
+import { PHONE_DISPLAY, TEL_HREF } from "@/lib/site";
 import { cn } from "@/lib/utils";
-
-const PHONE_DISPLAY = "+91 98765 43210";
-const PHONE_HREF = "tel:+919876543210";
 
 const navLinks = [
   { label: "Tours", href: "/tours" },
@@ -78,7 +76,7 @@ export function Navbar() {
         {/* Right side */}
         <div className="hidden lg:flex items-center gap-5">
           <a
-            href={PHONE_HREF}
+            href={TEL_HREF}
             className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors"
           >
             <Phone className="h-4 w-4 text-gold" />
@@ -92,7 +90,7 @@ export function Navbar() {
         {/* Mobile */}
         <div className="flex lg:hidden items-center gap-2">
           <a
-            href={PHONE_HREF}
+            href={TEL_HREF}
             aria-label="Call GK Travel"
             className="flex h-10 w-10 items-center justify-center rounded-sm border border-border text-primary"
           >

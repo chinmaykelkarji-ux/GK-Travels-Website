@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/page-hero";
+import { EMAIL, MAILTO_BASE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Refund & Cancellation Policy",
@@ -88,8 +89,8 @@ export default function RefundPolicyPage() {
             <p className="mt-3">
               For cancellation or refund requests, please contact your travel
               specialist directly or write to us at{" "}
-              <a href="mailto:hello@gktravel.com" className="text-primary underline-offset-4 hover:underline">
-                hello@gktravel.com
+              <a href={MAILTO_BASE} className="text-primary underline-offset-4 hover:underline">
+                {EMAIL}
               </a>.
             </p>
           </div>

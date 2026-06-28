@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHero } from "@/components/sections/page-hero";
+import { PHONE_DISPLAY, EMAIL, MAILTO_BASE } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -86,10 +87,10 @@ export default function TermsPage() {
             <h2 className="font-display text-xl font-medium md:text-2xl">7. Contact Us</h2>
             <p className="mt-3">
               For any questions regarding these terms, please contact us at{" "}
-              <a href="mailto:hello@gktravel.com" className="text-primary underline-offset-4 hover:underline">
-                hello@gktravel.com
+              <a href={MAILTO_BASE} className="text-primary underline-offset-4 hover:underline">
+                {EMAIL}
               </a>{" "}
-              or +91 98765 43210.
+              or {PHONE_DISPLAY}.
             </p>
           </div>
         </div>

@@ -22,6 +22,9 @@ export const contactSchema = z.object({
   phone: z.string().min(10, "Please enter a valid phone number"),
   email: z.string().email("Please enter a valid email"),
   subject: z.string().min(1, "Please select a reason"),
+  destination: z.string().optional().or(z.literal("")),
+  travelers: z.string().optional().or(z.literal("")),
+  travelDate: z.string().optional().or(z.literal("")),
   message: z.string().min(10, "Please tell us a little more (min. 10 characters)"),
 });
 

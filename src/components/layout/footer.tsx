@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { getAllDestinations } from "@/lib/tours";
+import { TEL_HREF, PHONE_DISPLAY, MAILTO_BASE, EMAIL } from "@/lib/site";
 import { FacebookIcon, InstagramIcon, YoutubeIcon } from "@/components/icons/social-icons";
 
 const allDestinations = getAllDestinations();
@@ -44,11 +45,15 @@ export function Footer() {
           <div className="mt-6 space-y-3 text-sm text-primary-foreground/80">
             <div className="flex items-center gap-3">
               <Phone className="h-4 w-4 text-gold" />
-              <a href="tel:+919876543210">+91 98765 43210</a>
+              <a href={TEL_HREF} className="hover:text-gold">
+                {PHONE_DISPLAY}
+              </a>
             </div>
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-gold" />
-              <a href="mailto:hello@gktravel.com">hello@gktravel.com</a>
+              <a href={MAILTO_BASE} className="hover:text-gold">
+                {EMAIL}
+              </a>
             </div>
             <div className="flex items-start gap-3">
               <MapPin className="h-4 w-4 text-gold mt-0.5" />
